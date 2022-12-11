@@ -1,0 +1,50 @@
+@import '~node_modules/modern-normalize/modern-normalize.css';
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.search-form {
+  text-align: center;
+  background-color: cadetblue;
+  padding: 20px;
+}
+
+.info-item {
+  display: inline;
+  padding: 0 20px;
+}
+
+.info {
+  display: flex;
+}
+
+a {
+  width: calc((100% - 60px) / 4);
+  height: auto;
+}
+
+img {
+  width: 100%;
+}
+
+.load-more {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.visually-hidden {
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  clip: rect(0 0 0 0);
+  -webkit-clip-path: inset(50%);
+  clip-path: inset(50%);
+  margin: -1px;
+}
