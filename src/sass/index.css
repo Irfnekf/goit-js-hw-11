@@ -1,7 +1,7 @@
 @import '~node_modules/modern-normalize/modern-normalize.css';
 .container {
-  margin: 102px auto 0;
-  width: calc(400px * 3 + 30px * 3);
+  padding: 120px 0 100px 130px;
+  width: calc(400px * 4 + 30px * 3);
 }
 .gallery {
   width: 100%;
