@@ -19,7 +19,7 @@ export async function onFetch() {
 export async function onRequest() {
   onFetch().then(res => {
     if (res.hits.length === 0) {
-      Notiflix.Notify.warning(
+      Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     } else {
