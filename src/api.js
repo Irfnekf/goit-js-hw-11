@@ -1,19 +1,23 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
-import { userText, page, data, onRenderCards } from './index';
+import { userText, page, data, onRenderCards, refs, onLoadMore } from './index';
 
 const URL = 'https://pixabay.com/api/';
 const KEY = '31999537-8b000b200011d9a4da5a9d3c4';
 
-const getDefaultPage = 40;
+export const getDefaultPage = 40;
 
 export async function onFetch() {
-  const response = await axios.get(
-    `${URL}?key=${KEY}&q=${userText}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${getDefaultPage}`
-  );
+  try {
+    const response = await axios.get(
+      `${URL}?key=${KEY}&q=${userText}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${getDefaultPage}`
+    );
 
-  // console.log(response);
-  return await response.data;
+    // console.log(response);
+    return await response.data;
+  } catch (error) {
+    console.log('ERROR: ' + error);
+  }
 }
 
 export async function onRequest() {
@@ -24,9 +28,11 @@ export async function onRequest() {
       );
     } else {
       Notiflix.Notify.success(`Hooray! We found ${res.totalHits} images.`);
+      refs.button.classList.remove('visually-hidden');
     }
     res.hits.map(item => data.push(item));
 
     onRenderCards(data);
+    onLoadMore(res);
   });
 }

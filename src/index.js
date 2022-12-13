@@ -1,7 +1,8 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import { onRequest, onFetch } from './api';
+import { onRequest, onFetch, getDefaultPage, onRequest } from './api';
 import throttle from 'lodash.throttle';
+import Notiflix from 'notiflix';
 
 export let userText = '';
 export let page = 1;
@@ -11,10 +12,11 @@ let lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: '250',
 });
 
-const refs = {
+export const refs = {
   form: document.querySelector('#search-form'),
   gallery: document.querySelector('.gallery'),
   input: document.querySelector('.input-search'),
+  button: document.querySelector('.load-more'),
 };
 
 refs.form.addEventListener('submit', onSubmit);
@@ -34,8 +36,8 @@ export function onRenderCards(data) {
   const markup = data.map(onCards).join('');
   refs.gallery.innerHTML = '';
   refs.gallery.insertAdjacentHTML('beforeend', markup);
-  lightbox.refresh();
   onScroll();
+  lightbox.refresh();
 }
 
 export function onCards({
@@ -78,16 +80,31 @@ export function onScroll() {
     });
   }
 }
-window.addEventListener('scroll', throttle(onEndlessScroll, 500));
+// window.addEventListener('scroll', throttle(onEndlessScroll, 500));
 
-function onEndlessScroll() {
-  const documentRect = document.documentElement.getBoundingClientRect();
-  if (documentRect.bottom < document.documentElement.clientHeight + 100) {
+// function onEndlessScroll() {
+//   const documentRect = document.documentElement.getBoundingClientRect();
+//   if (documentRect.bottom < document.documentElement.clientHeight + 100) {
+//     page += 1;
+//     onFetch().then(respdata => {
+//       respdata.hits.map(item => data.push(item));
+//       onRenderCards(data);
+//     });
+//   }
+// }
+
+export function onLoadMore(respdata) {
+  refs.button.addEventListener('click', () => {
+    if (Number(page * getDefaultPage) > Number(respdata.totalHits)) {
+      Notiflix.Notify.warning(
+        "We're sorry, but you've reached the end of search results."
+      );
+      refs.button.classList.add('visually-hidden');
+    }
     page += 1;
     onFetch().then(respdata => {
       respdata.hits.map(item => data.push(item));
       onRenderCards(data);
-      // lightbox.refresh();
     });
-  }
+  });
 }
