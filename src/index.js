@@ -1,5 +1,6 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { onCards } from './js/markup';
 import { onRequest, onFetch, getDefaultPage, onRequest } from './api';
 import throttle from 'lodash.throttle';
 import Notiflix from 'notiflix';
@@ -20,16 +21,23 @@ export const refs = {
 };
 
 refs.form.addEventListener('submit', onSubmit);
+refs.button.addEventListener('click', onLoadMore);
 
 export function onSubmit(e) {
   e.preventDefault();
   refs.gallery.innerHTML = '';
-
-  userText = e.target.elements.searchQuery.value;
-
+  onButtonView();
+  if (e.target.elements.searchQuery.value.trim() === '') {
+    onButtonHidden();
+    return;
+  } else {
+    userText = e.target.elements.searchQuery.value.trim();
+  }
   page = 1;
   data = [];
   onRequest(data);
+
+  onButtonHidden();
 }
 
 export function onRenderCards(data) {
@@ -40,45 +48,25 @@ export function onRenderCards(data) {
   lightbox.refresh();
 }
 
-export function onCards({
-  webformatURL,
-  largeImageURL,
-  tags,
-  likes,
-  views,
-  comments,
-  downloads,
-}) {
-  return `<div class="photo-card"><div class="photo-link-owerflow">
-  <a class="image-link" href="${largeImageURL}"><img src="${webformatURL}" alt="${tags}" loading="lazy" />
-  </a></div>
-  <div class="info">
-    <p class="info-item">
-      <b>Likes: ${likes}</b>
-    </p>
-    <p class="info-item">
-      <b>Views: ${views}</b>
-    </p>
-    <p class="info-item">
-      <b>Comments: ${comments}</b>
-    </p>
-    <p class="info-item">
-      <b>Downloads: ${downloads}</b>
-    </p>
-  </div>
-</div>`;
-}
-export function onScroll() {
-  if (page !== 1) {
-    let { height: cardHeight } = document
-      .querySelector('.gallery')
-      .firstElementChild.getBoundingClientRect();
-
-    window.scrollBy({
-      top: cardHeight * 2,
-      behavior: 'smooth',
-    });
+export function onLoadMore(respdata) {
+  if (Number(page * getDefaultPage) > Number(respdata.totalHits)) {
+    Notiflix.Notify.warning(
+      "We're sorry, but you've reached the end of search results."
+    );
+    onButtonHidden();
   }
+  page += 1;
+  onFetch().then(respdata => {
+    respdata.hits.map(item => data.push(item));
+    onRenderCards(data);
+  });
+}
+
+export function onButtonHidden() {
+  refs.button.classList.add('visually-hidden');
+}
+export function onButtonView() {
+  refs.button.classList.remove('visually-hidden');
 }
 // window.addEventListener('scroll', throttle(onEndlessScroll, 500));
 
@@ -92,19 +80,15 @@ export function onScroll() {
 //     });
 //   }
 // }
+function onScroll() {
+  if (page !== 1) {
+    let { height: cardHeight } = document
+      .querySelector('.gallery')
+      .firstElementChild.getBoundingClientRect();
 
-export function onLoadMore(respdata) {
-  refs.button.addEventListener('click', () => {
-    if (Number(page * getDefaultPage) > Number(respdata.totalHits)) {
-      Notiflix.Notify.warning(
-        "We're sorry, but you've reached the end of search results."
-      );
-      refs.button.classList.add('visually-hidden');
-    }
-    page += 1;
-    onFetch().then(respdata => {
-      respdata.hits.map(item => data.push(item));
-      onRenderCards(data);
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
     });
-  });
+  }
 }

@@ -1,6 +1,14 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
-import { userText, page, data, onRenderCards, refs, onLoadMore } from './index';
+import {
+  userText,
+  page,
+  data,
+  onRenderCards,
+  onLoadMore,
+  onButtonHidden,
+  onButtonView,
+} from './index';
 
 const URL = 'https://pixabay.com/api/';
 const KEY = '31999537-8b000b200011d9a4da5a9d3c4';
@@ -26,9 +34,10 @@ export async function onRequest() {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
+      onButtonHidden();
     } else {
       Notiflix.Notify.success(`Hooray! We found ${res.totalHits} images.`);
-      refs.button.classList.remove('visually-hidden');
+      onButtonView();
     }
     res.hits.map(item => data.push(item));
 
