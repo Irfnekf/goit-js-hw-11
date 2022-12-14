@@ -21,12 +21,12 @@ export const refs = {
 };
 
 refs.form.addEventListener('submit', onSubmit);
-refs.button.addEventListener('click', onLoadMore);
 
 export function onSubmit(e) {
   e.preventDefault();
   refs.gallery.innerHTML = '';
   onButtonView();
+
   if (e.target.elements.searchQuery.value.trim() === '') {
     onButtonHidden();
     return;
@@ -34,6 +34,7 @@ export function onSubmit(e) {
   userText = e.target.elements.searchQuery.value.trim();
   page = 1;
   data = [];
+
   onRequest(data);
 
   onButtonHidden();
@@ -48,17 +49,18 @@ export function onRenderCards(data) {
 }
 
 export function onLoadMore(respdata) {
-  page += 1;
-  if (Number(page * getDefaultPage) > Number(respdata.totalHits)) {
-    Notiflix.Notify.warning(
-      "We're sorry, but you've reached the end of search results."
-    );
-    onButtonHidden();
-  }
-
-  onFetch().then(respdata => {
-    respdata.hits.map(item => data.push(item));
-    onRenderCards(data);
+  refs.button.addEventListener('click', () => {
+    if (Number(page * getDefaultPage) > Number(respdata.totalHits)) {
+      Notiflix.Notify.warning(
+        "We're sorry, but you've reached the end of search results."
+      );
+      onButtonHidden();
+    }
+    page += 1;
+    onFetch().then(respdata => {
+      respdata.hits.map(item => data.push(item));
+      onRenderCards(data);
+    });
   });
 }
 function onScroll() {
@@ -73,16 +75,6 @@ function onScroll() {
     });
   }
 }
-// function onScroll(obj) {
-//   const { height: cardHeight } = document
-//     .querySelector(obj)
-//     .firstElementChild.getBoundingClientRect();
-
-//   window.scrollBy({
-//     top: cardHeight * 2,
-//     behavior: 'smooth',
-//   });
-// }
 export function onButtonHidden() {
   refs.button.classList.add('visually-hidden');
 }
